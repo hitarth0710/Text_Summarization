@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">My Summaries</h2>
+        <a href="{{ url_for('main.index') }}" class="btn btn-light btn-sm">Create New</a>
+    </div>
+    <div class="card-body">
+        {% if summaries.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Words</th>
+                            <th>Compression</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for summary in summaries.items %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('main.view_summary', id=summary.id) }}" class="text-decoration-none">
+                                    {{ summary.title }}
+                                </a>
+                            </td>
+                            <td>{{ summary.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ summary.original_length }} → {{ summary.summary_length }}</td>
+                            <td>{{ (summary.compression_ratio * 100)|round(1) }}%</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('main.view_summary', id=summary.id) }}" class="btn btn-outline-primary">
+                                        View
+                                    </a>
+                                    <a href="{{ url_for('main.delete_summary', id=summary.id) }}" 
+                                       class="btn btn-outline-danger"
+                                       onclick="return confirm('Are you sure you want to delete this summary?')">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <nav aria-label="Summary pagination">
+                <ul class="pagination justify-content-center">
+                    {% if summaries.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.history', page=summaries.prev_num) }}">
+                                Previous
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in summaries.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == summaries.page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.history', page=page_num) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if summaries.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.history', page=summaries.next_num) }}">
+                                Next
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <div class="text-center text-muted">
+                Showing {{ summaries.items|length }} of {{ summaries.total }} summaries
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <h4>No summaries yet!</h4>
+                <p>Start creating summaries to build your history.</p>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-2">Create Your First Summary</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

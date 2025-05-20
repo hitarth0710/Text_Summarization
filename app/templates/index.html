@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Introduction Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center py-4">
+                <h1 class="display-5 fw-bold mb-3">AI-Powered Text Summarization</h1>
+                <p class="lead mb-4">Transform lengthy articles into concise, accurate summaries with our advanced AI technology.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <span class="badge bg-primary p-2"><i class="fas fa-bolt me-1"></i> Fast</span>
+                    <span class="badge bg-success p-2"><i class="fas fa-check-circle me-1"></i> Accurate</span>
+                    <span class="badge bg-info p-2"><i class="fas fa-robot me-1"></i> AI-Powered</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-file-alt me-2"></i>Article Summarizer</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.index') }}" id="summarizeForm">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Input Tabs -->
+                    <ul class="nav nav-tabs" id="inputTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab" aria-controls="url" aria-selected="true">
+                                <i class="fas fa-link me-2"></i>URL
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab" aria-controls="text" aria-selected="false">
+                                <i class="fas fa-align-left me-2"></i>Text
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="inputTabContent">
+                        <!-- URL Tab -->
+                        <div class="tab-pane fade show active" id="url" role="tabpanel" aria-labelledby="url-tab">
+                            <div class="mb-3">
+                                {{ form.url.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                    {{ form.url(class="form-control" + (" is-invalid" if form.url.errors else ""), placeholder="https://example.com/article") }}
+                                </div>
+                                {% for error in form.url.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">Enter the URL of the article you want to summarize</div>
+                            </div>
+                        </div>
+
+                        <!-- Text Tab -->
+                        <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
+                            <div class="mb-3">
+                                {{ form.text.label(class="form-label") }}
+                                {{ form.text(class="form-control" + (" is-invalid" if form.text.errors else ""), rows="10", placeholder="Paste or type your article text here...") }}
+                                {% for error in form.text.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">Paste or type the text you want to summarize</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        {{ form.title.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Optional title for your summary") }}
+                        </div>
+                        {% for error in form.title.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Give your summary a title (optional)</div>
+                    </div>
+
+                    <!-- Summary Length Controls -->
+                    <div class="card mb-4 border-light">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Summary Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form.min_length.label(class="form-label") }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-text-height"></i></span>
+                                            {{ form.min_length(class="form-control" + (" is-invalid" if form.min_length.errors else ""), min="30", max="200") }}
+                                        </div>
+                                        {% for error in form.min_length.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form.max_length.label(class="form-label") }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-text-width"></i></span>
+                                            {{ form.max_length(class="form-control" + (" is-invalid" if form.max_length.errors else ""), min="50", max="500") }}
+                                        </div>
+                                        {% for error in form.max_length.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if current_user.is_authenticated %}
+                            <div class="form-check">
+                                {{ form.save_summary(class="form-check-input") }}
+                                {{ form.save_summary.label(class="form-check-label") }}
+                                <div class="form-text">Save this summary to your account for later reference</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+
+                <!-- Summary Results Section -->
+                {% if summary %}
+                <div class="mt-5" id="results">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Summary</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-text p-3">
+                                {{ summary }}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <button class="btn btn-outline-secondary" id="copyBtn" onclick="copyToClipboard()">
+                                        <i class="fas fa-copy me-1"></i>Copy Summary
+                                    </button>
+                                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary ms-2">
+                                        <i class="fas fa-sync-alt me-1"></i>New Summary
+                                    </a>
+                                </div>
+                                <div class="badge bg-light text-dark p-2">
+                                    <i class="fas fa-clock me-1"></i>Processing time: {{ processing_time }}s
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Original Text Section -->
+                {% if original_text and summary %}
+                <div class="mt-4">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h3 class="mb-0"><i class="fas fa-file-alt me-2"></i>Original Text</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="original-text p-3" style="max-height: 300px; overflow-y: auto;">
+                                {{ original_text }}
+                            </div>
+
+                            <div class="summary-info mt-3">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-alt me-2 text-primary fa-lg"></i>
+                                            <div>
+                                                <div class="small text-muted">Original Length</div>
+                                                <strong>{{ original_text.split()|length }} words</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-contract me-2 text-success fa-lg"></i>
+                                            <div>
+                                                <div class="small text-muted">Summary Length</div>
+                                                <strong>{{ summary.split()|length }} words</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-compress-alt me-2 text-info fa-lg"></i>
+                                            <div>
+                                                <div class="small text-muted">Compression Ratio</div>
+                                                <strong>{{ ((summary.split()|length / original_text.split()|length) * 100)|round(1) }}%</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Copy summary to clipboard
+function copyToClipboard() {
+    const summaryText = document.querySelector('.summary-text').innerText;
+    navigator.clipboard.writeText(summaryText).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        copyBtn.classList.replace('btn-outline-secondary', 'btn-success');
+
+        setTimeout(() => {
+            copyBtn.innerHTML = originalHTML;
+            copyBtn.classList.replace('btn-success', 'btn-outline-secondary');
+        }, 2000);
+    });
+}
+
+// Switch tabs if needed based on form field values
+document.addEventListener('DOMContentLoaded', function() {
+    const urlField = document.getElementById('url');
+    const textField = document.getElementById('text');
+    const urlTab = document.getElementById('url-tab');
+    const textTab = document.getElementById('text-tab');
+
+    if (textField && textField.value && textTab) {
+        new bootstrap.Tab(textTab).show();
+    }
+
+    // Scroll to results if they exist
+    const resultsSection = document.getElementById('results');
+    if (resultsSection) {
+        setTimeout(() => {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+This is a placeholder file. In a real-world scenario, you would need to replace this with an actual favicon.png file.
+
+The favicon should be a 32x32 or 64x64 pixel PNG image that represents the application's identity.
+For the Text Summarizer application, a simple document or text icon in the primary color (#4361ee) would be appropriate.
+
+You can create a favicon using online tools like:
+1. https://favicon.io/
+2. https://realfavicongenerator.net/
+3. https://www.favicon-generator.org/
+
+Once created, place the favicon.png file in this directory (static/img/).

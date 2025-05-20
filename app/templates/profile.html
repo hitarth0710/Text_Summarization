@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">{{ user.username }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <img src="https://www.gravatar.com/avatar/{{ user.email|lower|trim|md5 }}?s=150&d=identicon" 
+                         class="rounded-circle img-thumbnail" alt="Profile Picture">
+                </div>
+
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Email
+                        <span>{{ user.email }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Member Since
+                        <span>{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Seen
+                        <span>{{ user.last_seen.strftime('%B %d, %Y at %H:%M') }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Summaries Created
+                        <span class="badge bg-primary rounded-pill">{{ stats.count }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Account Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.history') }}" class="btn btn-info">
+                                <i class="fas fa-history"></i> View My Summaries
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-success">
+                                <i class="fas fa-file-alt"></i> Create New Summary
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if stats.count > 0 %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Summary Statistics</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">{{ stats.total_words_original }}</h3>
+                                <p class="text-muted mb-0">Total Words Processed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">{{ stats.total_words_summary }}</h3>
+                                <p class="text-muted mb-0">Total Words in Summaries</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 text-center">
+                            <div class="card-body">
+                                <h3 class="text-info">{{ stats.avg_compression }}%</h3>
+                                <p class="text-muted mb-0">Average Compression</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4>Summarization Activity</h4>
+                    <div class="activity-chart">
+                        <style>
+                            .activity-chart {
+                                margin-top: 20px;
+                            }
+                            .chart-container {
+                                display: flex;
+                                align-items: flex-end;
+                                height: 150px;
+                                margin-bottom: 10px;
+                            }
+                            .chart-bar {
+                                flex: 1;
+                                margin: 0 5px;
+                                background-color: #0d6efd;
+                                border-radius: 4px 4px 0 0;
+                                position: relative;
+                            }
+                            .chart-bar.height-0 { height: 5px; }
+                            .chart-bar.height-1 { height: 25%; }
+                            .chart-bar.height-2 { height: 50%; }
+                            .chart-bar.height-3 { height: 75%; }
+                            .chart-bar.height-4 { height: 90%; }
+                            .chart-bar.height-5 { height: 100%; }
+                            .chart-bar .count {
+                                position: absolute;
+                                top: -20px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                font-weight: bold;
+                            }
+                            .chart-labels {
+                                display: flex;
+                                justify-content: space-around;
+                            }
+                            .chart-label {
+                                flex: 1;
+                                text-align: center;
+                                font-size: 0.8rem;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        </style>
+                        <div class="chart-container">
+                            {% for i in range(stats.chart_counts|length) %}
+                                <div class="chart-bar {{ stats.chart_height_classes[i] }}">
+                                    <span class="count">{{ stats.chart_counts[i] }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="chart-labels">
+                            {% for month in stats.chart_months %}
+                                <div class="chart-label">{{ month }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if stats.recent_summary %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Most Recent Summary</h2>
+            </div>
+            <div class="card-body">
+                <h4>{{ stats.recent_summary.title }}</h4>
+                <p class="text-muted">Created on {{ stats.recent_summary.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ stats.recent_summary.summary_text|truncate(200) }}</p>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <span class="badge bg-primary">{{ stats.recent_summary.original_length }} words</span>
+                        <i class="fas fa-arrow-right mx-1"></i>
+                        <span class="badge bg-success">{{ stats.recent_summary.summary_length }} words</span>
+                        <span class="badge bg-info ms-2">{{ (stats.recent_summary.compression_ratio * 100)|round(1) }}% compression</span>
+                    </div>
+                    <a href="{{ url_for('main.view_summary', id=stats.recent_summary.id) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye me-1"></i>View Full Summary
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Welcome to Your Profile</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">No summaries yet!</h4>
+                    <p>You haven't created any summaries yet. Start summarizing texts to build your history and see statistics here.</p>
+                    <hr>
+                    <p class="mb-0">Your summaries are private and only visible to you.</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-lg btn-success">
+                        <i class="fas fa-file-alt me-2"></i>Create Your First Summary
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">About the Text Summarizer</h2>
+            </div>
+            <div class="card-body">
+                <h3>How it Works</h3>
+                <p>This text summarization tool uses state-of-the-art natural language processing to create concise summaries of articles and long-form text.</p>
+                
+                <div class="mb-4">
+                    <h4>Technical Details</h4>
+                    <ul>
+                        <li>Powered by the <strong>BART large CNN</strong> model from Facebook/Meta AI</li>
+                        <li>Uses abstractive summarization techniques to generate human-like summaries</li>
+                        <li>Built with Flask, Transformers, and PyTorch</li>
+                        <li>Can handle both URLs and direct text input</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Model Information</h4>
+                    <p>BART (Bidirectional and Auto-Regressive Transformers) is a transformer-based machine learning model that was pre-trained by denoising various text corruption schemes, then fine-tuned on CNN Daily Mail dataset for summarization tasks.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Summarize articles from URLs or pasted text</li>
+                        <li>Adjust summary length parameters</li>
+                        <li>View compression statistics</li>
+                        <li>Handles long texts by chunking and multi-stage summarization</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h5>Note:</h5>
+                    <p>For optimal performance, the summarizer works best with well-structured articles and text between 500-10,000 words. While it can handle text in various languages, it performs best with English content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
